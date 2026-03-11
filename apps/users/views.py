@@ -26,5 +26,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer 
     # serializer_class: Especifica qué "traductor" JSON usará esta vista.
 
-    permission_classes = [AllowAny] if MODO_PRUEBAS else [IsAuthenticated]
-    # permission_classes: Define el protocolo de seguridad. AllowAny abre la puerta para pruebas iniciales.
+    def get_permissions(self):
+        # Si estamos en desarrollo (MODO_PRUEBAS) 
+        # O si el usuario está intentando registrarse (create)
+        # Dejamos la puerta abierta.
+        if MODO_PRUEBAS or self.action == 'create':
+            return [AllowAny()]
+        
+        # Para todo lo demás en producción, se exige el Token.
+        return [IsAuthenticated()]
