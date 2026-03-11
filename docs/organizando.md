@@ -1,0 +1,1 @@
+git commit -m "init: Plantilla Base ERP con Autenticación Híbrida y JWT" -m " Implementación de lógica híbrida (Email/User) en backends.py." -m " Configuración de seguridad con SimpleJWT y CORS Headers." -m "Documentación técnica completa (11 manuales) en la carpeta /docs/." -m "Preparado para despliegue en AWS con IIS mediante web.config y .env."

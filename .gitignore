@@ -1,0 +1,26 @@
+# --- PYTHON ---
+# Archivos de código compilado por Python.
+__pycache__/     
+# Archivos compilados individuales.
+*.py[cod]       
+
+# --- ENTORNO VIRTUAL ---
+# El contenedor de librerías (pesado y específico de cada PC).
+env/
+venv/      
+# ¡CRÍTICO! Contiene contraseñas y llaves de seguridad.
+.env             
+# --- BASE DE DATOS LOCAL ---
+# Base de datos de prueba (No subir a producción).
+*.sqlite3 
+
+# --- EDITORES Y SISTEMA ---
+# Configuraciones personales de Visual Studio Code.
+.vscode/  
+# Configuraciones de PyCharm.        
+.idea/  
+# Archivos temporales de sistema (macOS).          
+.DS_Store 
+
+web.config
+static/
