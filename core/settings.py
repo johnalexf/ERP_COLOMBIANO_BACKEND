@@ -70,7 +70,11 @@ INSTALLED_APPS = [
     'corsheaders',               # Permisos de conexión (CORS)
     
     # --- APPS ---
-    'apps.users',
+    # --- DOMINIO ADMINISTRATIVO ---
+    'apps.admin.admin_users',
+    
+    # --- DOMINIO INQUILINOS (NEGOCIO) ---
+    'apps.tenant.tenant_users',
 ]
 
 
@@ -113,7 +117,7 @@ TEMPLATES = [
 
 
 
-# --------------------------- 6. BASE DE DATOS ---------------------------
+# --------------------------- 6. BASE DE DATOS Y ENRUTAMIENTO ---------------------------
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -121,19 +125,30 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
+        'NAME': config('DB_NAME_DEFAULT'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
+    },
+    'tenant': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME_TENANT'),
+        'USER': config('DB_USER_TENANT', default=config('DB_USER')), 
+        'PASSWORD': config('DB_PASSWORD_TENANT', default=config('DB_PASSWORD')),
+        'HOST': config('DB_HOST_TENANT', default=config('DB_HOST')),
+        'PORT': config('DB_PORT_TENANT', default=config('DB_PORT')),
     }
 }
+
+# Enrutador de tráfico para separar la data administrativa de la del negocio
+DATABASE_ROUTERS = ['core.routers.ErpDatabaseRouter']
 
 
 
 # --------------------------- 7. AUTENTICACIÓN Y MODELO DE USUARIO ---------------------------
 
-AUTH_USER_MODEL = 'users.User'
+#AUTH_USER_MODEL = 'users.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
