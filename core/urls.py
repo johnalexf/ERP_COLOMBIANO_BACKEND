@@ -16,21 +16,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings 
 from drf_spectacular.views import (
     SpectacularAPIView, 
     SpectacularRedocView, 
     SpectacularSwaggerView
 )
 
+# Rutas que SIEMPRE van a existir (Producción y Desarrollo)
 urlpatterns = [
-    # path('admin/'): Dirección para entrar al panel de control visual de Django.
-    path('admin/', admin.site.urls),
+    # Panel de control nativo de Django (Ruta ofuscada por seguridad)
+    path('portal-maestro-volt/', admin.site.urls),
 
-    # path('api/users'): Prefijo global para la API. Conecta las URLs de la app 'users'.
-    path('api/users/', include('apps.users.urls')),
-
-    # Rutas de Documentación Automática
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'), # El archivo técnico base
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'), # El portal interactivo
-    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'), # Vista alternativa
+    # Aquí irán las futuras conexiones y delegacion de responsabilidad de cada apps de manejar cada peticion HTTP que vaya dirigida hacia la app(comentadas por ahora):
+    # path('api/v1/master/', include('apps.admin.admin_users.urls')),
+    # path('api/v1/tenant/', include('apps.tenant.tenant_users.urls')),
 ]
+
+# Rutas que SOLO existen en la computadora de los desarrolladores
+# Si en AWS el DEBUG está en False, estas rutas simplemente no se crean.
+if settings.DEBUG:
+    urlpatterns += [
+        path('api/schema/', SpectacularAPIView.as_view(), name='schema'), 
+        path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'), 
+        path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'), 
+    ]
