@@ -64,9 +64,10 @@ INSTALLED_APPS = [
 
      # --- TERCEROS ---
     'rest_framework',
-    'rest_framework.authtoken',  # Requerida por dj-rest-auth
-    'dj_rest_auth',              # Gestionar autenticacion
-    'rest_framework_simplejwt',  # Seguridad JWT
+    # 'rest_framework.authtoken',  # Requerida por dj-rest-auth / authotoken => tokens opacos
+    # 'dj_rest_auth',              # Gestionar autenticacion / login genérico que requería authtoken
+    # 'rest_framework.authtoken' y 'dj_rest_auth' no se va utilizar porque la arquitectura evolucionó a JWT puro y "Dos Puertas" separadas.
+    'rest_framework_simplejwt',  # Seguridad JWT / único y verdadero motor de seguridad ahora. Con aspiración a camuflarlo en HttpOnly cookies
     'corsheaders',               # Permisos de conexión (CORS)
     
     # --- APPS ---
