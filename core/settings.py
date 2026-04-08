@@ -148,7 +148,10 @@ DATABASE_ROUTERS = ['core.routers.ErpDatabaseRouter']
 
 # --------------------------- 7. AUTENTICACIÓN Y MODELO DE USUARIO ---------------------------
 
-#AUTH_USER_MODEL = 'users.User'
+# --- CONFIGURACIÓN DEL MODELO DE USUARIO MAESTRO ---
+# Le indicamos al framework que el motor de autenticación debe usar 
+# nuestra clase personalizada en lugar del usuario por defecto.
+AUTH_USER_MODEL = 'admin_users.AdminUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

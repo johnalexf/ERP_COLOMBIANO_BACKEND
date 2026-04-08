@@ -1,22 +1,44 @@
 class ErpDatabaseRouter:
     """
-    Este es el 'Semáforo' del sistema. Su fin es evitar que los datos de las 
-    empresas se mezclen con los datos de administración del software.
+    Enrutador principal ESTRICTO (Strict Allowlist) para la arquitectura Multi-Tenant.
+    Controla el tráfico entre la base de datos administrativa y la de inquilinos.
+    No permite ambigüedades. Toda aplicación debe estar declarada explícitamente.
     """
     
-    # 1. EL LISTADO MAESTRO:
-    # Aquí se define qué aplicaciones son el 'Cerebro' del sistema.
-    # Todo lo que esté aquí se guardará SÓLO en la base de datos Administrativa.
-    admin_apps = {'users_admin', 'admin', 'auth', 'contenttypes', 'sessions'}
+    # 1. Apps que viven en la base de datos de los clientes inquilinos (empresas)
+    TENANT_APPS = ['tenant_users']
+
+    # 2. Apps que viven en la base de datos central administrativa
+    # aplicaciones (nativas y nuestras) que van a la base administrativa
+    # Incluimos las apps internas de Django para que no se pierdan
+    ADMIN_APPS = [
+        'admin_users', 
+        'admin', 
+        'auth', 
+        'contenttypes', 
+        'sessions',
+        'authtoken'
+    ]
+
+    def _get_db(self, app_label):
+        """
+        Motor de decisión central con Fallo Rápido (Fail-Fast).
+        Si un programador instala una librería y no la declara aquí, estalla.
+        """
+        if app_label in self.TENANT_APPS:
+            return 'tenant'
+        elif app_label in self.ADMIN_APPS:
+            return 'default'
+        else:
+            # Aquí aplicamos tu regla: Cero ignorancia. Error forzado.
+            raise ValueError(f"¡ALERTA ARQUITECTÓNICA! La aplicación '{app_label}' está intentando acceder a la base de datos, pero no ha sido declarada en las listas del ErpDatabaseRouter.")
+
 
     def db_for_read(self, model, **hints):
         """
         FIN: Decidir de dónde traer la información (Lectura).
-        Si Django va a buscar un dato, esta función le dice a qué base de datos ir.
         """
-        if model._meta.app_label in self.admin_apps:
-            return 'default'  # Ve a la base de datos Administrativa
-        return 'tenant'       # Para todo lo demás, ve a la base de datos de Negocio
+        return self._get_db(model._meta.app_label)
 
     def db_for_write(self, model, **hints):
         """
@@ -24,9 +46,7 @@ class ErpDatabaseRouter:
         Asegura que si se crea un administrador, se guarde en la DB central, 
         y si se crea un producto, se guarde en la DB del cliente.
         """
-        if model._meta.app_label in self.admin_apps:
-            return 'default'
-        return 'tenant'
+        return self._get_db(model._meta.app_label)
 
     def allow_relation(self, obj1, obj2, **hints):
         """
@@ -35,12 +55,10 @@ class ErpDatabaseRouter:
         a una tabla de 'Administración'. Esto evita errores catastróficos si 
         mañana se decide mover una base de datos a otro servidor.
         """
-        db_obj1 = 'default' if obj1._meta.app_label in self.admin_apps else 'tenant'
-        db_obj2 = 'default' if obj2._meta.app_label in self.admin_apps else 'tenant'
-        
-        if db_obj1 == db_obj2:
-            return True # Solo permite la relación si viven en la misma casa
-        return None
+        """Solo permite relaciones si AMBOS modelos pertenecen a la misma base de datos."""
+        db1 = self._get_db(obj1._meta.app_label)
+        db2 = self._get_db(obj2._meta.app_label)
+        return db1 == db2
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """
@@ -49,6 +67,7 @@ class ErpDatabaseRouter:
         'Crea estas tablas SÓLO en esta base de datos'. 
         Evita que la tabla de Usuarios Administrativos aparezca por error en la DB del Cliente.
         """
-        if app_label in self.admin_apps:
-            return db == 'default'
-        return db == 'tenant'
+        expected_db = self._get_db(app_label)
+        return db == expected_db
+    
+ 
