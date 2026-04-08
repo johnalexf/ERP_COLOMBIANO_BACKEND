@@ -17,7 +17,6 @@ class ErpDatabaseRouter:
         'auth', 
         'contenttypes', 
         'sessions',
-        'authtoken'
     ]
 
     def _get_db(self, app_label):
