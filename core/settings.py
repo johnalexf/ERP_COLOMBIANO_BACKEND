@@ -181,20 +181,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Configuración adicional de cuenta (AllAuth/Auth logic)
-
-# Método de autenticación: 'username_email' permite AMBOS.
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  
-# El correo es obligatorio y no se puede repetir en la base de datos.
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-# El username sigue siendo requerido para la base de datos interna
-ACCOUNT_USERNAME_REQUIRED = True 
-# Evita que pida confirmación de email por correo (útil para pruebas locales).
-# Se activa cuando se haya configurado un servidor de correos (SMTP).
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-
-
 
 
 # --------------------------- 8. DJANGO REST FRAMEWORK (DRF) ---------------------------
