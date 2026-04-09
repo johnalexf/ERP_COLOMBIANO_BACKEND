@@ -1,8 +1,8 @@
 # 🚀 Manual de Configuración: Backend API REST (ERP Colombiano) 
 
-Este documento constituye el cimiento técnico del ERP. Cubre desde la preparación del entorno lógico hasta la interconexión con el motor de base de datos PostgreSQL, garantizando una arquitectura de seguridad desacoplada (Headless) preparada para ser consumida por el Frontend.
+Este documento constituye el cimiento técnico del ERP. Cubre desde la preparación del entorno lógico hasta la interconexión con el motor de base de datos PostgreSQL, garantizando una arquitectura de seguridad desacoplada (Headless) y Multi-Tenant preparada para ser consumida por el Frontend.
 
-Al finalizar esta guía, el sistema contará con una "Torre de Control" configurada, un puente de comunicación (CORS) establecido y la capacidad de gestionar variables de entorno sensibles mediante estándares industriales.
+Al finalizar esta guía, el sistema contará con una "Torre de Control" configurada, un puente de comunicación (CORS) establecido, un enrutamiento estricto de bases de datos y la capacidad de gestionar variables de entorno sensibles mediante estándares industriales.
 
 ---
 
@@ -77,7 +77,7 @@ Desde aquí ya no es necesario estar como administrador en la terminal, se puede
 
 ---
 ## 5. 🧱 Instalación de Componentes (Dependencias)
-Descarga de los frameworks y herramientas necesarias para la comunicación con el Frontend, la Base de Datos y la Seguridad de grado empresarial.
+Descarga de los frameworks y herramientas necesarias para la comunicación con el Frontend, la Base de Datos y la Seguridad de grado empresarial mediante JWT puro.
 
 **Lista de paquetes principales:**
 * `django`: El chasis o estructura principal del proyecto.
@@ -85,16 +85,16 @@ Descarga de los frameworks y herramientas necesarias para la comunicación con e
 * `django-cors-headers`: El puente de comunicación segura entre React y Django.
 * `psycopg2-binary`: La tubería de conexión para PostgreSQL.
 * `python-decouple`: La caja fuerte para gestionar llaves y contraseñas mediante archivos `.env`.
-* `djangorestframework-simplejwt`: Estándar para el manejo de llaves digitales (Tokens) con expiración.
-* `dj-rest-auth`: Librería que automatiza el proceso de entrada/salida (Login/Logout).
+* `djangorestframework-simplejwt`: Único y verdadero motor de seguridad. Estándar para el manejo de llaves digitales (Tokens) con expiración.
+* `drf-spectacular`: Generación de documentación técnica interactiva (Swagger/Redoc).
 
 ```bash
 # Instalación masiva de componentes:
-pip install django djangorestframework django-cors-headers psycopg2-binary python-decouple djangorestframework-simplejwt dj-rest-auth
+pip install django djangorestframework django-cors-headers psycopg2-binary python-decouple djangorestframework-simplejwt drf-spectacular
 ```
 
 ### 🔐 Nota sobre Seguridad "Http-Only & Secure"
-Se integran estas librerías  `dj-rest-auth` y `djangorestframework-simplejwt` desde el inicio para que la arquitectura soporte niveles de protección avanzados:
+Se integra la librería `djangorestframework-simplejwt` desde el inicio para que la arquitectura soporte niveles de protección avanzados:
 1. **Cookies Http-Only:** Actúan como un sobre sellado que impide que atacantes roben la sesión mediante scripts maliciosos (XSS).
 2. **Bandera Secure:** Asegura que los datos solo viajen por túneles encriptados (HTTPS).
 
@@ -116,25 +116,28 @@ django-admin startproject core .
 ---
 
 ## 7. 📁 Estructura de Aplicaciones (Apps)
-Organización modular del sistema. Aquí se alojarán los módulos independientes como Usuarios, Inventario y Ventas.
+Organización modular del sistema. Aquí se alojarán los módulos divididos por dominios lógicos y de base de datos: el Administrativo (`admin`) y el de Inquilinos (`tenant`). 
 
 ```bash
-# Crear directorio para módulos independientes:
+# 1. Crear directorio principal de aplicaciones:
 mkdir apps
-```
-
-### Crear una App
-Django requiere una estructura específica para manejar cada funcionalidad de forma independiente.
-
-```Bash
-#1.Entrar a la carpeta de aplicaciones:
 cd apps
 
-#2. Crear el módulo inicial 'users' (Ojo: usar django-admin):
-django-admin startapp users
+# 2. Crear los subdominios:
+mkdir admin tenant
 
-#3. Regresar a la carpeta principal para seguir trabajando:
+# Django requiere una estructura específica para manejar cada funcionalidad de forma independiente.
+# 3. Crear la App administrativa dentro de su dominio:
+cd admin
+django-admin startapp admin_users
 cd ..
+
+# 4. Crear la App de inquilinos dentro de su dominio:
+cd tenant
+django-admin startapp tenant_users
+
+# 5. Regresar a la raíz del proyecto:
+cd ../..
 ```
 
 ---
@@ -150,14 +153,16 @@ pip freeze > requirements.txt
 ---
 
 ## 9. 🗄️ Configuración de PostgreSQL
-Antes de que Django pueda gestionar datos, se debe preparar el motor de base de datos profesional.
+Antes de que Django pueda gestionar datos, se debe preparar el motor de base de datos profesional en PostgreSQL 18.
 
 1. **Descarga:** Instalar PostgreSQL (Versión 18) desde el sitio oficial. [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
 2. **Clave de Acceso:** Registrar la contraseña definida durante la instalación; se requerirá para la conexión con Django.
 3. **Creación de la Base de Datos (pgAdmin 4):**
    * Abrir pgAdmin 4 y conectarse al servidor local.
    * Clic derecho en `Databases` > `Create` > `Database...`
-   * Asignar un nombre (ej. `erp_bd`). Este nombre debe coincidir con el valor configurado en el archivo `.env`.
+   * Crear la primera base: `erp_admin_bd` (Para el núcleo y dueños del sistema).
+   * Crear la segunda base: `erp_tenant_bd` (Para los clientes e inquilinos).
+   * Estos nombre debe coincidir con el valor configurado en el archivo `.env`.
 
 ---
 
@@ -168,15 +173,23 @@ Para proteger la integridad de la empresa, las credenciales sensibles se almacen
 * `DEBUG=True`: Modo desarrollador; 
 True para mostrar exactamente donde paso el error; 
 False solo muestra "Error 500 - Algo salió mal", sin detalles.
-Poner en False en produccion.
+**Poner en False en produccion.**
 * `SECRET_KEY=clave_aleatoria_super_secreta`: Clave para encriptar datos importantes como tokens.
-* `ALLOWED_HOSTS=127.0.0.1,localhost`: Django Solo responde si la petición viene dirigida a estos nombres.
-* `DB_NAME=nombre_de_bd`
-* `DB_USER=usuario`
+* `ALLOWED_HOSTS=127.0.0.1,localhost,IP_DEL_SERVIDOR`: Django Solo responde si la petición viene dirigida a estos nombres.
+
+* `DB_NAME_DEFAULT=erp_admin_bd`
+* `DB_USER=postgres`
 * `DB_PASSWORD=contraseña`
 * `DB_HOST=localhost` : Direccion de la base de datos
 * `DB_PORT=5432` : 5432 es el puerto estándar de Postgres
-* `CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://IP_DEL_SERVIDOR` : El "permiso de fronteras". Permite que el navegador acepte datos enviados desde el puerto de React hacia el de Django.
+
+* `DB_NAME_TENANT=erp_tenant_db`
+* `DB_USER_TENANT=usuario`
+* `DB_PASSWORD_TENANT=contraseña`
+* `DB_HOST_TENANT=localhost` : Direccion de la base de datos
+* `DB_PORT_TENANT=5432` : 5432 es el puerto estándar de Postgres
+
+* `CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://IP_DEL_SERVIDOR:3000` : El "permiso de fronteras". Permite que el navegador acepte datos enviados desde el puerto de React hacia el de Django.
 * `USE_HTTPS=False` : Interruptor Maestro. Controla si Django exige túneles seguros y cookies blindadas, False (Evita bloqueos en pruebas).
 
 
@@ -186,24 +199,33 @@ Poner en False en produccion.
 # 2. Agregar el siguiente contenido base (ajustar con datos reales):
 # NO espacios alrededor del signo =
 
-# --- CONFIGURACIÓN DEL PROYECTO ---
+# ----------------- CONFIGURACIÓN DEL PROYECTO -----------------------------
 DEBUG=True
 SECRET_KEY=cambiar_por_una_llave_muy_larga_y_compleja
 ALLOWED_HOSTS=127.0.0.1,localhost,IP_DEL_SERVIDOR
 
-# --- CONEXIÓN A BASE DE DATOS (PostgreSQL) ---
-DB_NAME=nombre_de_bd
+# ------------ CONEXIÓN A BASES DE DATOS (Multi-Tenant) -------------------
+
+# --- CONEXIÓN A BASE DE DATOS ADMIN (DEFAULT) ---
+DB_NAME_DEFAULT=erp_admin_db
 DB_USER=postgres
-DB_PASSWORD=contraseña_de_postgres
+DB_PASSWORD=104862
 DB_HOST=localhost
 DB_PORT=5432
 
-# --- SEGURIDAD DE RED (CORS) ---
+# --- CONEXIÓN A BASE DE DATOS INQUILINOS (TENANT) ---
+DB_NAME_TENANT=erp_tenant_db
+DB_USER_TENANT=postgres
+DB_PASSWORD_TENANT=104862
+DB_HOST_TENANT=localhost
+DB_PORT_TENANT=5432
+
+# --------------------- SEGURIDAD DE RED (CORS) -------------------------
 # Define el origen permitido para las peticiones de React.
 # Sin espacios después de la coma
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://IP_DEL_SERVIDOR
 
-# --- INTERRUPTORES DE SEGURIDAD (SSL/COOKIES) ---
+# --------------- INTERRUPTORES DE SEGURIDAD (SSL/COOKIES) ---------------
 # False para pruebas locales por IP. True para producción con HTTPS.
 USE_HTTPS=False
 
@@ -253,16 +275,24 @@ Configurar el "Cerebro" del sistema para que reconozca las nuevas herramientas i
 ```python
 INSTALLED_APPS = [
     # ... aplicaciones por defecto de django ...
-    
+
+    # ... otras aplicaciones ...
+    'drf_spectacular',
+
     # --- TERCEROS ---
     'rest_framework',
-    'rest_framework.authtoken',  # Requerida por dj-rest-auth
-    'dj_rest_auth',              # Gestionar autenticacion
+    # 'rest_framework.authtoken',  # Requerida por dj-rest-auth / authotoken => tokens opacos
+    # 'dj_rest_auth',              # Gestionar autenticacion / login genérico que requería authtoken
+    # 'rest_framework.authtoken' y 'dj_rest_auth' no se va utilizar porque la arquitectura evolucionó a JWT puro y "Dos Puertas" separadas.
     'rest_framework_simplejwt',  # Seguridad JWT
     'corsheaders',               # Permisos de conexión (CORS)
     
     # --- APPS ---
-    'apps.users',
+    # --- DOMINIO ADMINISTRATIVO ---
+    'apps.admin.admin_users',
+    
+    # --- DOMINIO INQUILINOS (NEGOCIO) ---
+    'apps.tenant.tenant_users',
 ]
 ```
 
@@ -286,40 +316,41 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 ```
 
 > **Nota Técnica:** 
 > El bloque `REST_FRAMEWORK` establece la **JWTAuthentication** como el estándar global del sistema. Esto permite que el servidor sea "stateless" (sin estado), delegando la validación de identidad a tokens encriptados, lo cual es ideal para la integración con React.
 
-#### Actualización de Ruta en la App 'users'
-Es necesario ajustar el archivo `apps/users/apps.py` para mantener la coherencia con la estructura de carpetas modular.
+#### Actualización de Ruta en las Apps
+Ajustar los archivos `apps.py` de cada aplicación para mantener la coherencia con la estructura de carpetas modular.
 
-Reemplazar:
-
-```Python
-class UsersConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'users'  # <--- Genera problemas
-```
-Por:
-
+Para `apps/admin/admin_users/apps.py`:
 ```Python
 from django.apps import AppConfig
 
-class UsersConfig(AppConfig):
+class AdminUsersConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    
-    # El 'name' es la ruta física (donde está la carpeta)
-    name = 'apps.users'
-    
+    name = 'apps.admin.admin_users'  # Ruta física exacta (donde está la carpeta)
+    label = 'admin_users'            # Nombre interno para el router
     # El 'label' es el nombre corto interno (direccion logica para evitar problemas con la búsqueda desde el núcleo hasta la app)
-    label = 'users'
 ```
+
+Para `apps/tenant/tenant_users/apps.py`:
+```Python
+from django.apps import AppConfig
+
+class TenantUsersConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.tenant.tenant_users'
+    label = 'tenant_users'
+```
+
 Es necesario para mantener una concordancia de la direccion configurada en core/settings.py
 
 > **Nota de Arquitectura:**
-> Al usar la carpeta `apps/` para organizar el proyecto, es obligatorio definir `label = 'users'` en el `apps.py`. Esto permite que el sistema reconozca la app con un nombre corto y limpio, facilitando la conexión con el modelo de usuario (`users.User`) y manteniendo las tablas de PostgreSQL organizadas.
+> Al usar la carpeta `apps/` y las subcarpetas `apps/admin` y `apps/tenant` para organizar el proyecto, es obligatorio definir `label = 'admin_users'` y  `label = 'tenant_users'` en el `apps.py` de cada modelo. Esto permite que el sistema reconozca la app con un nombre corto y limpio, facilitando la conexión con cada modelo de usuario (`admin_users.AdminUser`) y (`tenant_users.TenantUserUser`) manteniendo las tablas de PostgreSQL organizadas.
 
 
 ### C. 🛡️ Blindaje y Permisos (CORS e HTTPS)
@@ -373,23 +404,115 @@ SIMPLE_JWT = {
 
 
 ### E. 🗄️ Conexión a Base de Datos Profesional
-Sustituir la configuración de SQLite por PostgreSQL.
+Sustituir la configuración de SQLite por PostgreSQL separando los dominios de datos.
 
 ```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
+        'NAME': config('DB_NAME_DEFAULT'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
+    },
+    'tenant': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME_TENANT'),
+        'USER': config('DB_USER_TENANT', default=config('DB_USER')), 
+        'PASSWORD': config('DB_PASSWORD_TENANT', default=config('DB_PASSWORD')),
+        'HOST': config('DB_HOST_TENANT', default=config('DB_HOST')),
+        'PORT': config('DB_PORT_TENANT', default=config('DB_PORT')),
     }
 }
+
+# Enrutador de tráfico para separar la data administrativa de la del negocio
+DATABASE_ROUTERS = ['core.routers.ErpDatabaseRouter']
 ```
 
+> **Aviso Crítico:** Antes de realizar las migraciones (`python manage.py migrate`), se debe crear el archivo `core/routers.py` con la clase `ErpDatabaseRouter` para que Django sepa a qué base de datos enviar cada tabla.
 
-### 🧪 Prueba de Fuego
+## 12. 🚦 Creación del Enrutador Estricto (Multi-Tenant)
+
+Para que la arquitectura de "Dos Puertas" funcione, Django necesita un archivo de reglas estrictas que le indique hacia qué base de datos debe enviar la información de cada aplicación. Si este archivo no existe, el sistema fallará al intentar arrancar.
+
+Crear el Archivo: `core/routers.py` (En la misma carpeta donde está `settings.py`)
+
+```python
+
+class ErpDatabaseRouter:
+    """
+    Enrutador principal ESTRICTO (Strict Allowlist) para la arquitectura Multi-Tenant.
+    Controla el tráfico entre la base de datos administrativa y la de inquilinos.
+    No permite ambigüedades. Toda aplicación debe estar declarada explícitamente.
+    """
+    
+    # 1. Apps que viven en la base de datos de los clientes inquilinos (empresas)
+    TENANT_APPS = ['tenant_users']
+
+    # 2. Apps que viven en la base de datos central administrativa
+    # aplicaciones (nativas y nuestras) que van a la base administrativa
+    # Incluimos las apps internas de Django para que no se pierdan
+    ADMIN_APPS = [
+        'admin_users', 
+        'admin', 
+        'auth', 
+        'contenttypes', 
+        'sessions',
+    ]
+
+    def _get_db(self, app_label):
+        """
+        Motor de decisión central con Fallo Rápido (Fail-Fast).
+        Si un programador instala una librería y no la declara aquí, estalla.
+        """
+        if app_label in self.TENANT_APPS:
+            return 'tenant'
+        elif app_label in self.ADMIN_APPS:
+            return 'default'
+        else:
+            # Cero ignorancia. Error forzado.
+            raise ValueError(f"¡ALERTA ARQUITECTÓNICA! La aplicación '{app_label}' está intentando acceder a la base de datos, pero no ha sido declarada en las listas del ErpDatabaseRouter.")
+
+
+    def db_for_read(self, model, **hints):
+        """ FIN: Decidir de dónde traer la información (Lectura). """
+        return self._get_db(model._meta.app_label)
+
+    def db_for_write(self, model, **hints):
+        """
+        FIN: Decidir dónde guardar la información (Escritura).
+        Asegura que si se crea un administrador, se guarde en la DB central, 
+        y si se crea un usuario de negocio, se guarde en la DB del cliente.
+        """
+        return self._get_db(model._meta.app_label)
+
+    def allow_relation(self, obj1, obj2, **hints):
+        """
+        FIN: Blindaje de integridad.
+        Su fin es prohibir que una tabla de 'Negocio' intente amarrarse físicamente
+        a una tabla de 'Administración'. Esto evita errores catastróficos.
+        Solo permite relaciones si AMBOS modelos pertenecen a la misma base de datos.
+        """
+        db1 = self._get_db(obj1._meta.app_label)
+        db2 = self._get_db(obj2._meta.app_label)
+        return db1 == db2
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        FIN: Constructor de infraestructura.
+        Cuando se ejecuta el comando 'migrate', esta función le dice a Django:
+        'Crea estas tablas SÓLO en esta base de datos'. 
+        Evita que la tabla de Usuarios Administrativos aparezca por error en la DB del Cliente.
+        """
+        expected_db = self._get_db(app_label)
+        return db == expected_db
+
+```
+
+---
+
+## 13. 🧪 Prueba de Fuego
 
 Una vez guardados los cambios en `settings.py` y se tenga el archivo `.env` listo, Asegúrar de que la base de datos en PostgreSQL exista.
 
@@ -405,9 +528,8 @@ python manage.py check
 
 ---
 
----
 
-## 12. 🛡️ Control de Versiones (.gitignore)
+## 14. 🛡️ Control de Versiones (.gitignore)
 
 El archivo `.gitignore` es fundamental para mantener el repositorio limpio y seguro. Evita que archivos temporales, configuraciones personales o datos sensibles (como contraseñas) suban al servidor o se compartan con otros desarrolladores.
 
@@ -456,7 +578,7 @@ static/
 
 ---
 
-## 13. 🏗️ Preparación para Producción (Static Files)
+## 15. 🏗️ Preparación para Producción (Static Files)
 A diferencia de React, Django no se "compila", pero sus archivos estáticos (CSS, JavaScript del Admin, Imágenes) deben agruparse en una carpeta única para que el servidor web (IIS o Nginx) pueda servirlos eficientemente.
 
 ### Configuración en core/settings.py

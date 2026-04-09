@@ -29,7 +29,7 @@ class ErpDatabaseRouter:
         elif app_label in self.ADMIN_APPS:
             return 'default'
         else:
-            # Aquí aplicamos tu regla: Cero ignorancia. Error forzado.
+            # Cero ignorancia. Error forzado.
             raise ValueError(f"¡ALERTA ARQUITECTÓNICA! La aplicación '{app_label}' está intentando acceder a la base de datos, pero no ha sido declarada en las listas del ErpDatabaseRouter.")
 
 
@@ -51,8 +51,8 @@ class ErpDatabaseRouter:
         """
         FIN: Blindaje de integridad.
         Su fin es prohibir que una tabla de 'Negocio' intente amarrarse físicamente
-        a una tabla de 'Administración'. Esto evita errores catastróficos si 
-        mañana se decide mover una base de datos a otro servidor.
+        a una tabla de 'Administración'. Esto evita errores catastróficos.
+        Solo permite relaciones si AMBOS modelos pertenecen a la misma base de datos.
         """
         """Solo permite relaciones si AMBOS modelos pertenecen a la misma base de datos."""
         db1 = self._get_db(obj1._meta.app_label)
