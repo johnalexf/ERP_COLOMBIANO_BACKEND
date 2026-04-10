@@ -32,8 +32,9 @@ urlpatterns = [
     # Todo el tráfico que empiece por /api/v1/master/ se delega a la app admin_users
     path('api/v1/master/', include('apps.admin.admin_users.urls')),
 
-     # (La ruta tenant se activará posteriormente)
-    # path('api/v1/tenant/', include('apps.tenant.tenant_users.urls')),
+    # --- DOMINIO INQUILINOS (PUERTA 2) ---
+    # Delegación de peticiones con prefijo /api/v1/tenant/ hacia tenant_users
+    path('api/v1/tenant/', include('apps.tenant.tenant_users.urls')),
 ]
 
 # Rutas que SOLO existen en la computadora de los desarrolladores
