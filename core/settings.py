@@ -175,7 +175,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # --- CONFIGURACIÓN DE SISTEMAS DE AUTENTICACIÓN ---
 AUTHENTICATION_BACKENDS = [
     # 1. Tu nuevo Escáner Híbrido (ajusta la ruta según el nombre de tu app)
-    'apps.users.backends.EmailOrUsernameModelBackend',
+    #'apps.users.backends.EmailOrUsernameModelBackend',
     
     # 2. El sistema estándar de Django (mantenido como respaldo)
     'django.contrib.auth.backends.ModelBackend',
