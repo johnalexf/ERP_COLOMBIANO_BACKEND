@@ -28,8 +28,11 @@ urlpatterns = [
     # Panel de control nativo de Django (Ruta ofuscada por seguridad)
     path('portal-maestro-volt/', admin.site.urls),
 
-    # Aquí irán las futuras conexiones y delegacion de responsabilidad de cada apps de manejar cada peticion HTTP que vaya dirigida hacia la app(comentadas por ahora):
-    # path('api/v1/master/', include('apps.admin.admin_users.urls')),
+     # --- DOMINIO ADMINISTRATIVO (PUERTA 1) ---
+    # Todo el tráfico que empiece por /api/v1/master/ se delega a la app admin_users
+    path('api/v1/master/', include('apps.admin.admin_users.urls')),
+
+     # (La ruta tenant se activará posteriormente)
     # path('api/v1/tenant/', include('apps.tenant.tenant_users.urls')),
 ]
 

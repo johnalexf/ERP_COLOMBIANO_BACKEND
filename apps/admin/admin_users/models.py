@@ -6,6 +6,7 @@ class AdminUser(AbstractUser):
     Modelo de usuario maestro para los administradores y dueños del ERP.
     Por directriz del ErpDatabaseRouter, esta tabla existirá 
     exclusivamente en la base de datos 'default'.
+    Hereda: username, password, email, first_name, last_name, entre otros.
     """
     # Sobrescribimos el email para forzar a que sea único y obligatorio
     email = models.EmailField(unique=True, verbose_name='Correo Electrónico')
