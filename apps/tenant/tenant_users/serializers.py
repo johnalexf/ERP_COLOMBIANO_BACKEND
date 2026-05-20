@@ -56,3 +56,50 @@ class TenantUserSerializer(serializers.ModelSerializer):
         user.save()
         
         return user
+
+
+class TenantLoginSerializer(serializers.Serializer):
+    """
+    Serializador dedicado exclusivamente a la autenticación de Tenants.
+    Ignora el backend global de Django para evitar cruces con AdminUser.
+    """
+    # 1. Exigimos explícitamente email en lugar de username
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(
+        write_only=True, 
+        required=True, 
+        style={"input_type": "password"}
+    )
+
+    def validate(self, data):
+        """
+        Sobreescribimos la validación general. Aquí interceptamos el JSON
+        y aplicamos nuestra propia lógica de negocio para iniciar sesión.
+        """
+        email = data.get("email")
+        password = data.get("password")
+
+        if email and password:
+            # 2. Reemplazamos la función global authenticate()
+            # Buscamos ESTRICTAMENTE en la tabla de TenantUser
+            try:
+                user = TenantUser.objects.get(email=email)
+            except TenantUser.DoesNotExist:
+                # Si es un Admin intentando entrar, fallará aquí mismo
+                raise serializers.ValidationError("Credenciales inválidas o usuario no encontrado.")
+
+            # 3. Comprobamos el hasheo de la contraseña
+            if not user.check_password(password):
+                raise serializers.ValidationError("Credenciales inválidas.")
+
+            # 4. Validamos que la cuenta no esté bloqueada
+            if not user.is_active:
+                raise serializers.ValidationError("Esta cuenta ha sido desactivada.")
+
+            # Si pasa todas las pruebas, inyectamos el usuario en los datos
+            # para que la Vista lo pueda tomar y generar el token.
+            data["user"] = user
+            return data
+            
+        else:
+            raise serializers.ValidationError("Debe proporcionar email y contraseña.")

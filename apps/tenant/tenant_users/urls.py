@@ -1,10 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-from .views import TenantUserViewSet
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import TenantUserViewSet, TenantLoginView
 
 # Inicialización del generador de rutas automáticas
 router = DefaultRouter()
@@ -14,7 +11,7 @@ router.register(r'tenant-user', TenantUserViewSet, basename='tenant-user')
 
 urlpatterns = [
     # Endpoints de autenticación JWT para usuarios de negocio
-    path('auth/login/', TokenObtainPairView.as_view(), name='tenant_token_obtain_pair'),
+    path('auth/login/', TenantLoginView.as_view(), name='tenant_token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='tenant_token_refresh'),
     
     # Inclusión de rutas CRUD generadas por el router
