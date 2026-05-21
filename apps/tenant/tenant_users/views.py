@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.conf import settings
 
 from .models import TenantUser
 from .serializers import TenantUserSerializer, TenantLoginSerializer
@@ -28,8 +27,8 @@ class TenantUserViewSet(viewsets.ModelViewSet):
         Implementa lógica de permisos dinámica basada en el entorno 
         y el tipo de acción ejecutada.
         """
-        # Permite el registro público (creación) o acceso total en modo desarrollo
-        if settings.DEBUG or self.action == 'create':
+        # Permite el registro público (creación).
+        if self.action == 'create':
             return [AllowAny()]
         
         # Exige autenticación JWT para el resto de operaciones en producción

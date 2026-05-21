@@ -6,15 +6,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # Importa el nivel de acceso permitido, 
 # AllowAny (Acceso a todo mundo) 
 # IsAuthenticated (Acceso con token)
-from django.conf import settings
 from .models import AdminUser
 from .serializers import AdminUserSerializer, AdminLoginSerializer
 
 from .permissions import IsAdminUser
 from .authentication import AdminJWTAuthentication
 
-# True para desarrollo, False para producción
-MODO_PRUEBAS = settings.DEBUG
 
 class AdminUserViewSet(viewsets.ModelViewSet):
 # viewsets.ModelViewSet: Clase maestra que ya incluye la lógica para Listar, Crear, Ver, Editar y Borrar.
@@ -36,8 +33,8 @@ class AdminUserViewSet(viewsets.ModelViewSet):
 
     # get_permissions(self) Define el protocolo de seguridad. AllowAny abre la puerta para pruebas iniciales.
     def get_permissions(self):
-        # Si estamos en modo desarrollador O si se está intentando crear un usuario, puerta abierta.
-        if MODO_PRUEBAS or self.action == 'create':
+        # Si se está intentando crear un usuario, puerta abierta.
+        if self.action == 'create':
             return [AllowAny()]
         
         # Para el resto de acciones en producción, se exige un Token JWT válido.
