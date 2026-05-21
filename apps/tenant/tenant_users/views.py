@@ -9,6 +9,7 @@ from .models import TenantUser
 from .serializers import TenantUserSerializer, TenantLoginSerializer
 
 from .permissions import IsTenantUser
+from .authentication import TenantJWTAuthentication
 
 class TenantUserViewSet(viewsets.ModelViewSet):
     """
@@ -18,6 +19,9 @@ class TenantUserViewSet(viewsets.ModelViewSet):
     """
     queryset = TenantUser.objects.all()
     serializer_class = TenantUserSerializer
+
+    # 1. AUTENTICACIÓN: "¿Es un usuario en la base de datos Tenant?" 
+    authentication_classes = [TenantJWTAuthentication]
 
     def get_permissions(self):
         """
