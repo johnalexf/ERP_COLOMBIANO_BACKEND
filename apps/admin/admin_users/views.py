@@ -3,11 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-# Importa el nivel de acceso permitido, 
-# AllowAny (Acceso a todo mundo) 
-# IsAuthenticated (Acceso con token)
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from .models import AdminUser
-from .serializers import AdminUserSerializer, AdminLoginSerializer
+from .serializers import AdminUserSerializer, AdminLoginSerializer, AdminTokenRefreshSerializer
 
 from .permissions import IsAdminUser
 from .authentication import AdminJWTAuthentication
@@ -74,3 +73,11 @@ class AdminLoginView(APIView):
             'access': str(refresh.access_token),
             'message': 'Autenticación exitosa.'
         }, status=status.HTTP_200_OK)
+    
+
+class AdminTokenRefreshView(TokenRefreshView):
+    """
+    Vista personalizada para emisión de nuevos Access Tokens para administradores.
+    Reemplaza la vista genérica de SimpleJWT.
+    """
+    serializer_class = AdminTokenRefreshSerializer

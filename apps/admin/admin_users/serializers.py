@@ -1,6 +1,9 @@
 from django.db.models import Q
-from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password # <--- Filtro de seguridad de Django
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken
+
 from .models import AdminUser
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -79,3 +82,32 @@ class AdminLoginSerializer(serializers.Serializer):
             
         else:
             raise serializers.ValidationError("Debe proporcionar un usuario/email y contraseña.")
+        
+
+class AdminTokenRefreshSerializer(TokenRefreshSerializer):
+    """
+    Serializador personalizado para refrescar tokens de administradores.
+    Evita que SimpleJWT aplique su comportamiento global y valida
+    estrictamente contra la tabla AdminUser.
+    """
+    def validate(self, attrs):
+        # Decodificamos el token de refresco recibido
+        refresh = self.token_class(attrs["refresh"])
+        
+        # 1. Validar origen: ¿Es realmente un token emitido para un Admin?
+        if refresh.payload.get('user_type') != 'admin':
+            raise InvalidToken("Este token de refresco no pertenece a un administrador.")
+
+        # 2. Validar existencia: Búsqueda explícita en el modelo AdminUser
+        user_id = refresh.payload.get('user_id')
+        try:
+            user = AdminUser.objects.get(id=user_id)
+        except AdminUser.DoesNotExist:
+            raise InvalidToken("El administrador asociado a este token ya no existe.")
+
+        # 3. Validar estado de la cuenta
+        if not user.is_active:
+            raise InvalidToken("La cuenta de este administrador está inactiva.")
+
+        # Si todo está perfecto, devolvemos el nuevo Access Token
+        return {"access": str(refresh.access_token)}
