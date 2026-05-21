@@ -8,6 +8,8 @@ from django.conf import settings
 from .models import TenantUser
 from .serializers import TenantUserSerializer, TenantLoginSerializer
 
+from .permissions import IsTenantUser
+
 class TenantUserViewSet(viewsets.ModelViewSet):
     """
     Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
@@ -27,7 +29,8 @@ class TenantUserViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         
         # Exige autenticación JWT para el resto de operaciones en producción
-        return [IsAuthenticated()]
+        # Se exige autenticación válida Y que el token pertenezca a un Tenant
+        return [IsAuthenticated(), IsTenantUser()]
 
 
 class TenantLoginView(APIView):
@@ -52,8 +55,11 @@ class TenantLoginView(APIView):
         # Extracción de la instancia del modelo validado
         user = serializer.validated_data['user']
         
-        # Generación de tokens de acceso y refresco vía SimpleJWT
+        # Generación de tokens de acceso base y refresco vía SimpleJWT
         refresh = RefreshToken.for_user(user)
+
+        # INYECCIÓN DEL CLAIM: Se añade el tipo de usuario al payload del JWT
+        refresh['user_type'] = 'tenant'
         
         # Retorno de respuesta HTTP 200 con el payload de tokens
         return Response({
