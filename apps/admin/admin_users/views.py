@@ -11,6 +11,7 @@ from .models import AdminUser
 from .serializers import AdminUserSerializer, AdminLoginSerializer
 
 from .permissions import IsAdminUser
+from .authentication import AdminJWTAuthentication
 
 # True para desarrollo, False para producción
 MODO_PRUEBAS = settings.DEBUG
@@ -29,6 +30,9 @@ class AdminUserViewSet(viewsets.ModelViewSet):
 
     serializer_class = AdminUserSerializer 
     # serializer_class: Especifica qué "traductor" JSON usará esta vista.
+
+    # AUTENTICACIÓN: Sobreescribimos el comportamiento por defecto
+    authentication_classes = [AdminJWTAuthentication]
 
     # get_permissions(self) Define el protocolo de seguridad. AllowAny abre la puerta para pruebas iniciales.
     def get_permissions(self):
