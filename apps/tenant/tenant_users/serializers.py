@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken
 from .models import TenantUser
 
 
@@ -103,3 +105,29 @@ class TenantLoginSerializer(serializers.Serializer):
             
         else:
             raise serializers.ValidationError("Debe proporcionar email y contraseña.")
+
+class TenantTokenRefreshSerializer(TokenRefreshSerializer):
+    """
+    Serializador personalizado para refrescar tokens de inquilinos.
+    Evita que SimpleJWT busque al usuario en la tabla global de Admin.
+    """
+    def validate(self, attrs):
+        # Decodifica el token de refresco recibido
+        refresh = self.token_class(attrs["refresh"])
+        
+        # 1. Validar que el token original se emitió para un tenant
+        if refresh.payload.get('user_type') != 'tenant':
+            raise InvalidToken("Este token de refresco no pertenece a un inquilino.")
+
+        # 2. Validar que el usuario exista y esté activo en nuestra tabla Tenant
+        user_id = refresh.payload.get('user_id')
+        try:
+            user = TenantUser.objects.get(id=user_id)
+        except TenantUser.DoesNotExist:
+            raise InvalidToken("El inquilino asociado a este token ya no existe.")
+
+        if not user.is_active:
+            raise InvalidToken("La cuenta de este inquilino está inactiva.")
+
+        # 3. Generar y devolver el nuevo token de acceso
+        return {"access": str(refresh.access_token)}

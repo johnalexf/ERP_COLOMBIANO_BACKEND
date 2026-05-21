@@ -3,9 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import TenantUser
-from .serializers import TenantUserSerializer, TenantLoginSerializer
+from .serializers import TenantUserSerializer, TenantLoginSerializer, TenantTokenRefreshSerializer
 
 from .permissions import IsTenantUser
 from .authentication import TenantJWTAuthentication
@@ -70,3 +71,10 @@ class TenantLoginView(APIView):
             'access': str(refresh.access_token),
             'message': 'Autenticación exitosa.'
         }, status=status.HTTP_200_OK)
+    
+
+class TenantTokenRefreshView(TokenRefreshView):
+    """
+    Vista personalizada para emisión de nuevos Access Tokens para inquilinos.
+    """
+    serializer_class = TenantTokenRefreshSerializer
