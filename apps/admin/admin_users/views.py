@@ -1,11 +1,16 @@
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated 
+from rest_framework import viewsets, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 # Importa el nivel de acceso permitido, 
 # AllowAny (Acceso a todo mundo) 
 # IsAuthenticated (Acceso con token)
 from django.conf import settings
 from .models import AdminUser
-from .serializers import AdminUserSerializer
+from .serializers import AdminUserSerializer, AdminLoginSerializer
+
+from .permissions import IsAdminUser
 
 # True para desarrollo, False para producción
 MODO_PRUEBAS = settings.DEBUG
@@ -32,4 +37,39 @@ class AdminUserViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         
         # Para el resto de acciones en producción, se exige un Token JWT válido.
-        return [IsAuthenticated()]
+        return [IsAuthenticated(),IsAdminUser()]
+    
+
+class AdminLoginView(APIView):
+    """
+    Clase basada en APIView encargada de procesar la autenticación 
+    de usuarios de tipo Admin y emitir los tokens JWT correspondientes.
+    """
+    # Asignamos el serializador exclusivo para el login de administradores
+    serializer_class = AdminLoginSerializer
+
+    def post(self, request):
+        """
+        Procesa las peticiones POST entrantes con las credenciales del usuario.
+        """
+        # Instanciación del serializador con el payload HTTP entrante
+        serializer = self.serializer_class(data=request.data)
+        
+        # Ejecución del proceso de validación. Lanza excepción HTTP 400 si la validación falla.
+        serializer.is_valid(raise_exception=True)
+        
+        # Extracción de la instancia del modelo validado
+        user = serializer.validated_data['user']
+        
+        # Generación de tokens de acceso base y refresco vía SimpleJWT
+        refresh = RefreshToken.for_user(user)
+
+        # INYECCIÓN DEL CLAIM: Se añade el tipo de usuario al payload del JWT
+        refresh['user_type'] = 'admin'
+        
+        # Retorno de respuesta HTTP 200 con el payload de tokens
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'message': 'Autenticación exitosa.'
+        }, status=status.HTTP_200_OK)

@@ -1,10 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import  AdminUserViewSet
+from .views import  AdminUserViewSet, AdminLoginView
 
 # DefaultRouter: Generador automático de rutas. Crea las URLs para GET, POST, PUT y DELETE automáticamente.
 # Él detecta que se usa en el ModelViewSet y crea las terminaciones de las rutas:
@@ -21,7 +20,7 @@ router.register(r'admin-user', AdminUserViewSet, basename='admin-user')
 
 urlpatterns = [
     # Rutas de Seguridad para el login (Generación y refresco de Tokens)
-    path('auth/login/', TokenObtainPairView.as_view(), name='master_token_obtain_pair'),
+    path('auth/login/', AdminLoginView.as_view(), name='master_token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='master_token_refresh'),
     
     # include: Incluye todas las rutas generadas por el router en la raíz de esta app.
