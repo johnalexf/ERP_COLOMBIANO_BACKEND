@@ -1,0 +1,833 @@
+openapi: 3.0.3
+info:
+  title: ERP Colombiano API
+  version: 1.0.0
+  description: Documentación interactiva de los servicios del ERP. Incluye gestión
+    de usuarios y autenticación JWT.
+paths:
+  /api/v1/master/admin-user/:
+    get:
+      operationId: v1_master_admin_user_list
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminUser'
+          description: ''
+    post:
+      operationId: v1_master_admin_user_create
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+          description: ''
+  /api/v1/master/admin-user/{id}/:
+    get:
+      operationId: v1_master_admin_user_retrieve
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Administrador.
+        required: true
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+          description: ''
+    put:
+      operationId: v1_master_admin_user_update
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Administrador.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminUserRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+          description: ''
+    patch:
+      operationId: v1_master_admin_user_partial_update
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Administrador.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminUserRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+          description: ''
+    delete:
+      operationId: v1_master_admin_user_destroy
+      description: |-
+        - Listar (GET /)
+        - Crear (POST /)
+        - Ver detalle (GET /id/)
+        - Editar (PUT-PATCH /id/)
+        - Borrar (DELETE /id/)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Administrador.
+        required: true
+      tags:
+      - v1
+      responses:
+        '204':
+          description: No response body
+  /api/v1/master/auth/login/:
+    post:
+      operationId: v1_master_auth_login_create
+      description: Procesa las peticiones POST entrantes con las credenciales del
+        usuario.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLogin'
+          description: ''
+  /api/v1/master/auth/refresh/:
+    post:
+      operationId: v1_master_auth_refresh_create
+      description: |-
+        Vista personalizada para emisión de nuevos Access Tokens para administradores.
+        Reemplaza la vista genérica de SimpleJWT.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminTokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTokenRefresh'
+          description: ''
+  /api/v1/tenant/auth/login/:
+    post:
+      operationId: v1_tenant_auth_login_create
+      description: Procesa las peticiones POST entrantes con las credenciales del
+        usuario.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantLoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantLogin'
+          description: ''
+  /api/v1/tenant/auth/refresh/:
+    post:
+      operationId: v1_tenant_auth_refresh_create
+      description: Vista personalizada para emisión de nuevos Access Tokens para inquilinos.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantTokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantTokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantTokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantTokenRefresh'
+          description: ''
+  /api/v1/tenant/tenant-user/:
+    get:
+      operationId: v1_tenant_tenant_user_list
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantUser'
+          description: ''
+    post:
+      operationId: v1_tenant_tenant_user_create
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+          description: ''
+  /api/v1/tenant/tenant-user/{id}/:
+    get:
+      operationId: v1_tenant_tenant_user_retrieve
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Inquilino.
+        required: true
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+          description: ''
+    put:
+      operationId: v1_tenant_tenant_user_update
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Inquilino.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantUserRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+          description: ''
+    patch:
+      operationId: v1_tenant_tenant_user_partial_update
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Inquilino.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantUserRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+          description: ''
+    delete:
+      operationId: v1_tenant_tenant_user_destroy
+      description: |-
+        Conjunto de vistas (ViewSet) para la gestión integral de usuarios inquilinos.
+        Provee automáticamente los endpoints para Listar, Crear, Recuperar,
+        Actualizar y Eliminar registros en la base de datos 'tenant'.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Usuario Inquilino.
+        required: true
+      tags:
+      - v1
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AdminLogin:
+      type: object
+      description: |-
+        Serializador dedicado exclusivamente a la autenticación de Administradores.
+        Permite iniciar sesión usando tanto el 'username' como el 'email'.
+      properties:
+        username:
+          type: string
+      required:
+      - username
+    AdminLoginRequest:
+      type: object
+      description: |-
+        Serializador dedicado exclusivamente a la autenticación de Administradores.
+        Permite iniciar sesión usando tanto el 'username' como el 'email'.
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    AdminTokenRefresh:
+      type: object
+      description: |-
+        Serializador personalizado para refrescar tokens de administradores.
+        Evita que SimpleJWT aplique su comportamiento global y valida
+        estrictamente contra la tabla AdminUser.
+      properties:
+        refresh:
+          type: string
+        access:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    AdminTokenRefreshRequest:
+      type: object
+      description: |-
+        Serializador personalizado para refrescar tokens de administradores.
+        Evita que SimpleJWT aplique su comportamiento global y valida
+        estrictamente contra la tabla AdminUser.
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    AdminUser:
+      type: object
+      description: |-
+        Traductor oficial para los usuarios del dominio administrativo.
+        Heredar de ModelSerializer otorga automáticamente las funciones de:
+        LECTURA (List/Retrieve), EDICIÓN (Update/Patch) y ELIMINACIÓN (Delete).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Correo Electrónico
+          maxLength: 254
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 150
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        cargo_interno:
+          type: string
+          nullable: true
+          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
+          maxLength: 100
+        telefono_contacto:
+          type: string
+          nullable: true
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Activo
+          description: Indica si el usuario debe ser tratado como activo. Desmarque
+            esta opción en lugar de borrar la cuenta.
+      required:
+      - email
+      - id
+      - username
+    AdminUserRequest:
+      type: object
+      description: |-
+        Traductor oficial para los usuarios del dominio administrativo.
+        Heredar de ModelSerializer otorga automáticamente las funciones de:
+        LECTURA (List/Retrieve), EDICIÓN (Update/Patch) y ELIMINACIÓN (Delete).
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Correo Electrónico
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 150
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        cargo_interno:
+          type: string
+          nullable: true
+          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
+          maxLength: 100
+        telefono_contacto:
+          type: string
+          nullable: true
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Activo
+          description: Indica si el usuario debe ser tratado como activo. Desmarque
+            esta opción en lugar de borrar la cuenta.
+      required:
+      - email
+      - password
+      - username
+    PatchedAdminUserRequest:
+      type: object
+      description: |-
+        Traductor oficial para los usuarios del dominio administrativo.
+        Heredar de ModelSerializer otorga automáticamente las funciones de:
+        LECTURA (List/Retrieve), EDICIÓN (Update/Patch) y ELIMINACIÓN (Delete).
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Correo Electrónico
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 150
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        cargo_interno:
+          type: string
+          nullable: true
+          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
+          maxLength: 100
+        telefono_contacto:
+          type: string
+          nullable: true
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Activo
+          description: Indica si el usuario debe ser tratado como activo. Desmarque
+            esta opción en lugar de borrar la cuenta.
+    PatchedTenantUserRequest:
+      type: object
+      description: |-
+        Serializador de grado industrial para la gestión de usuarios de inquilinos.
+        Implementa validaciones estrictas de seguridad y encriptación de credenciales.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Correo Electrónico
+          maxLength: 254
+        first_name:
+          type: string
+          minLength: 1
+          title: Primer Nombre
+          maxLength: 50
+        middle_name:
+          type: string
+          nullable: true
+          title: Segundo Nombre
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 1
+          title: Primer Apellido
+          maxLength: 50
+        second_last_name:
+          type: string
+          nullable: true
+          title: Segundo Apellido
+          maxLength: 50
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        is_active:
+          type: boolean
+          title: Estado Activo
+        date_joined:
+          type: string
+          format: date-time
+          title: Fecha de registro
+    TenantLogin:
+      type: object
+      description: |-
+        Serializador dedicado exclusivamente a la autenticación de Tenants.
+        Ignora el backend global de Django para evitar cruces con AdminUser.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    TenantLoginRequest:
+      type: object
+      description: |-
+        Serializador dedicado exclusivamente a la autenticación de Tenants.
+        Ignora el backend global de Django para evitar cruces con AdminUser.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    TenantTokenRefresh:
+      type: object
+      description: |-
+        Serializador personalizado para refrescar tokens de inquilinos.
+        Evita que SimpleJWT busque al usuario en la tabla global de Admin.
+      properties:
+        refresh:
+          type: string
+        access:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TenantTokenRefreshRequest:
+      type: object
+      description: |-
+        Serializador personalizado para refrescar tokens de inquilinos.
+        Evita que SimpleJWT busque al usuario en la tabla global de Admin.
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TenantUser:
+      type: object
+      description: |-
+        Serializador de grado industrial para la gestión de usuarios de inquilinos.
+        Implementa validaciones estrictas de seguridad y encriptación de credenciales.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Correo Electrónico
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primer Nombre
+          maxLength: 50
+        middle_name:
+          type: string
+          nullable: true
+          title: Segundo Nombre
+          maxLength: 50
+        last_name:
+          type: string
+          title: Primer Apellido
+          maxLength: 50
+        second_last_name:
+          type: string
+          nullable: true
+          title: Segundo Apellido
+          maxLength: 50
+        is_active:
+          type: boolean
+          title: Estado Activo
+        date_joined:
+          type: string
+          format: date-time
+          title: Fecha de registro
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+    TenantUserRequest:
+      type: object
+      description: |-
+        Serializador de grado industrial para la gestión de usuarios de inquilinos.
+        Implementa validaciones estrictas de seguridad y encriptación de credenciales.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Correo Electrónico
+          maxLength: 254
+        first_name:
+          type: string
+          minLength: 1
+          title: Primer Nombre
+          maxLength: 50
+        middle_name:
+          type: string
+          nullable: true
+          title: Segundo Nombre
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 1
+          title: Primer Apellido
+          maxLength: 50
+        second_last_name:
+          type: string
+          nullable: true
+          title: Segundo Apellido
+          maxLength: 50
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        is_active:
+          type: boolean
+          title: Estado Activo
+        date_joined:
+          type: string
+          format: date-time
+          title: Fecha de registro
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

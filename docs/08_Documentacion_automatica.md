@@ -110,12 +110,12 @@ Este archivo es el estándar industrial que describe cada punto de acceso (Endpo
 
 ```bash
 # Ejecutar en la terminal con el entorno virtual activo:
-python manage.py spectacular --file esquema_erp_tecnico.yml
+python manage.py spectacular --file coleccion_postman_api.yml
 ```
 > **Utilidad:** Este archivo `.yml` puede ser importado directamente en **Postman** o **Insomnia** para generar automáticamente todas las colecciones de prueba sin escribir una sola URL manualmente.
 
 #### Procedimiento de Importación en Postman
-Una vez generado el archivo `esquema_erp_tecnico.yml`, siga estos pasos para automatizar la creación de las pruebas:
+Una vez generado el archivo `coleccion_postman_api.yml`, siga estos pasos para automatizar la creación de las pruebas:
 
 1. **Abrir Postman:** En la esquina superior izquierda de la aplicación, haga clic en el botón **"Import"** (o presione `Ctrl + O`).
 2. **Seleccionar el Archivo:** Arrastre el archivo `.yml` generado o selecciónelo desde su carpeta de archivos.
