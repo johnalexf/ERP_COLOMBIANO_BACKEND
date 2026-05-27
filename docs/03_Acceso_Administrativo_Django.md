@@ -1,11 +1,15 @@
-# 🔑 Manual: Gestión Administrativa y Registro de Modelos (Django Admin)
+# 🔑 Manual: Gestión Administrativa y Registro de Modelos Multi-Tenant (Django Admin)
 
-Este documento detalla los pasos para crear la cuenta de control total y configurar el panel visual de administración. Estas acciones permiten gestionar la base de datos de forma intuitiva sin necesidad de ejecutar comandos SQL manuales.
+Este documento detalla los procedimientos técnicos para la creación de credenciales de acceso maestro y la configuración de la interfaz administrativa de Django. Se implementa un esquema de enrutamiento explícito para gestionar simultáneamente la base de datos de administración (`default`) y la base de datos de inquilinos (`tenant`) desde un único panel de control.
+
+Estas acciones permiten gestionar la base de datos de forma intuitiva sin necesidad de ejecutar comandos SQL manuales.
 
 ---
 
 ## 1. Creación de Superusuario (Acceso Maestro)
-El Superusuario es la cuenta con privilegios totales. Es el primer paso tras realizar las migraciones, ya que habilita la entrada a la "Torre de Control" del sistema.
+
+El Superusuario constituye la cuenta de máxima jerarquía. En la arquitectura Multi-Tenant, este usuario reside estrictamente en la base de datos `default` (Puerta 1), vinculado al modelo `AdminUser`.
+
 
 ### Requisitos Previos
 * El entorno virtual (`venv`) debe estar activo.
@@ -18,77 +22,103 @@ Ejecute el siguiente comando en la raíz del proyecto:
 python manage.py createsuperuser
 ```
 
-### Flujo de Datos solicitado:
-El sistema solicitará los siguientes campos de forma secuencial:
-1. **Username:** Identificador de acceso (ej: `admin`).
-2. **Email address:** Correo electrónico de contacto (puede dejarse vacío presionando Enter).
-3. **Password:** Contraseña de acceso (mínimo 8 caracteres).
-4. **Password (again):** Confirmación de la contraseña.
+### Secuencia de Captura de Datos
+El sistema solicitará los parámetros definidos en el modelo `AdminUser`:
+1. **Username:** Identificador de acceso.
+2. **Correo Electrónico:** Dirección de correo (campo obligatorio y único).
+3. **Password:** Clave de seguridad (mínimo 8 caracteres).
+4. **Password (again):** Confirmación de la clave de seguridad.
 
-> [!IMPORTANT]
-> **Privacidad de Entrada:** Por seguridad, al escribir la contraseña la terminal no mostrará caracteres ni asteriscos. Se debe digitar la clave con normalidad y presionar Enter.
+> **Nota de Seguridad:** Durante la digitación de la contraseña, la interfaz de línea de comandos no renderizará caracteres visibles. Se debe ingresar el valor y oprimir la tecla de retorno.
 
 ---
 
 ## 2. Configuración del Panel Administrativo (admin.py)
-Por defecto, Django no muestra los modelos personalizados en la interfaz web. Para visualizarlos, es necesario realizar un "registro de vitrina" en los archivos correspondientes.
 
-### A. Personalización del Modelo de Usuario
-Para visualizar los campos adicionales (Cédula, Empresa, Cargo) en el panel, se debe extender la configuración estándar.
+Para exponer los modelos personalizados en la interfaz web de Django y garantizar que las transacciones afecten a las bases de datos correctas, es imperativo configurar los archivos `admin.py` de cada dominio.
 
-**Archivo:** `apps/users/admin.py`
+### A. Registro de la Puerta 1 (Dominio Administración)
+El modelo `AdminUser` hereda de `AbstractUser`. Su registro requiere extender la clase `UserAdmin` nativa de Django para inyectar los campos personalizados.
+
+**Archivo:** `apps/admin/admin_users/admin.py`
 
 ```python
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import AdminUser
 
-# Extensión de la interfaz para el Usuario Personalizado
-class CustomUserAdmin(UserAdmin):
-    # Columnas visibles en el listado general
-    list_display = ('username', 'email', 'cedula', 'empresa', 'is_staff')
+class CustomAdminUserAdmin(UserAdmin):
+    # Columnas expuestas en la vista de lista
+    list_display = ('username', 'email', 'cargo_interno', 'is_staff')
     
-    # Organización de los campos en el formulario de edición (Detalle)
-    # Se mantienen los campos estándar y se anexa la "Información de Negocio"
+    # Inyección de campos personalizados en la vista de detalle
     fieldsets = UserAdmin.fieldsets + (
-        ('Información de Negocio', {
-            'fields': ('cedula', 'telefono', 'cargo', 'empresa')
+        ('Información Interna ERP', {
+            'fields': ('cargo_interno', 'telefono_contacto')
         }),
     )
 
-# Registro del modelo bajo la nueva configuración
-admin.site.register(User, CustomUserAdmin)
+# Registro del modelo en el ecosistema Admin
+admin.site.register(AdminUser, CustomAdminUserAdmin)
 ```
 
-### B. Registro de Modelos de Negocio (Inventario)
-Para tablas estándar que no requieren visualizaciones complejas, se realiza un registro directo.
+### B. Registro de la Puerta 2 (Dominio Inquilinos)
+Dado que el panel administrativo de Django ejecuta sus sentencias por defecto sobre la base de datos `default`, es obligatorio implementar una clase controladora (`TenantModelAdmin`) que fuerce el enrutamiento de las consultas (QuerySets) y transacciones (Save/Delete) hacia la base de datos `tenant`.
 
-**Archivo: de ejemplo** `apps/inventario/admin.py`
+**Archivo:** `apps/tenant/tenant_users/admin.py`
 
 ```python
 from django.contrib import admin
-from .models import Producto, Empresa, Bodega
+from .models import TenantUser, TenantRol, TenantPermission
 
-# Registro de entidades para gestión visual
-admin.site.register(Producto)
-admin.site.register(Empresa)
-admin.site.register(Bodega)
+class TenantModelAdmin(admin.ModelAdmin):
+    """
+    Controlador maestro para forzar el enrutamiento de operaciones
+    del panel administrativo hacia la base de datos 'tenant'.
+    """
+    using = 'tenant'
+
+    def save_model(self, request, obj, form, change):
+        obj.save(using=self.using)
+
+    def delete_model(self, request, obj):
+        obj.delete(using=self.using)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).using(self.using)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        return super().formfield_for_foreignkey(db_field, request, using=self.using, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        return super().formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
+
+
+class TenantUserAdmin(TenantModelAdmin):
+    # Configuración de visualización para el modelo AbstractBaseUser
+    list_display = ('email', 'first_name', 'last_name', 'is_active', 'date_joined')
+    search_fields = ('email', 'first_name', 'last_name')
+    list_filter = ('is_active', 'date_joined')
+    ordering = ('-date_joined',)
+
+# Registro de entidades bajo la regla de enrutamiento estricto
+admin.site.register(TenantUser, TenantUserAdmin)
+admin.site.register(TenantRol, TenantModelAdmin)
+admin.site.register(TenantPermission, TenantModelAdmin)
 ```
 
 ---
 
 ## 3. Protocolo de Validación y Puesta en Marcha
-Para asegurar que el "Tablero de Control" refleja los cambios, siga estos pasos:
 
-1. **Reinicio del Servicio:** Guardar todos los archivos y verificar que el servidor de desarrollo se refresque correctamente.
-2. **Acceso Web:** Ingresar en el navegador a: `http://127.0.0.1:8000/admin`
-3. **Autenticación:** Utilizar las credenciales creadas en el paso de **Superusuario**.
-4. **Inspección Visual:** * Localizar la sección **Users**.
-   * Ingresar a un perfil y validar que aparezca el bloque **"Información de Negocio"** con los campos de Cédula, Teléfono y Cargo.
-   * Verificar que los módulos de **Productos, Empresas y Bodegas** aparezcan listados y permitan crear nuevos registros.
+Para auditar el correcto funcionamiento de las políticas de enrutamiento y la renderización de la interfaz:
 
-> [!TIP]
-> **Resolución de Conflictos:** Si el servidor arroja un error al iniciar, verifique que los nombres de los modelos importados en `admin.py` coincidan letra por letra con los definidos en `models.py`.
+1. **Reinicio de Instancia:** Confirmar la persistencia de los archivos modificados y asegurar que el servidor de desarrollo se encuentre en ejecución (`python manage.py runserver`).
+2. **Autenticación Web:** Acceder al recurso `http://127.0.0.1:8000/portal-maestro-volt/` mediante el navegador web e ingresar con las credenciales de Superusuario previamente generadas.
+3. **Auditoría Estructural:**
+   * Localizar el grupo **Admin_Users**. Ingresar al perfil creado y constatar la existencia del bloque **"Información Interna ERP"** conteniendo los atributos `cargo_interno` y `telefono_contacto`.
+   * Localizar el grupo **Tenant_Users**. Verificar la operatividad de los listados de **Usuarios Inquilinos**, **Roles de Inquilinos** y **Permisos de Inquilinos**.
+4. **Prueba de Escritura Aislada:** Crear un registro de prueba en `TenantUser` y verificar mediante herramientas de inspección (ej. pgAdmin) que el registro se ha almacenado físicamente en la base de datos `erp_tenant_db` y no en `erp_admin_db`.
 
 ---
-© 2026 - Proyecto ERP Colombiano - Desarrollo Profesional.
+© 2026 - Proyecto ERP Colombiano - Arquitectura Multi-Tenant.
