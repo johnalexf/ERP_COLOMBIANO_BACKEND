@@ -13,6 +13,7 @@ venv/
 # --- BASE DE DATOS LOCAL ---
 # Base de datos de prueba (No subir a producción).
 *.sqlite3 
+*.sql
 
 # --- EDITORES Y SISTEMA ---
 # Configuraciones personales de Visual Studio Code.

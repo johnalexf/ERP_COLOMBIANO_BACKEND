@@ -14,7 +14,7 @@ Es la forma más directa de obtener el SQL de todas las tablas, relaciones, índ
 
 ```bash
 # Exportar solo la estructura (sin datos) de toda la base de datos:
-pg_dump -U postgres -s nombre_base_datos > estructura_completa.sql
+pg_dump -U postgres -s nombre_base_datos > estructura_completa_de_la_DB_nombre_de_la_BD.sql
 ```
 > Cambiar `nombre_base_datos` por el nombre de la base de datos a obtener codigo SQL
 
@@ -26,10 +26,10 @@ Para que el comando `pg_dump` funcione directamente en la terminal de Windows, l
 
 Si al ejecutarlo recibe el error: `"pg_dump no se reconoce como un comando"`, deberá ejecutarlo desde la ruta completa:
 ```bash
-"C:\Program Files\PostgreSQL\18\bin\pg_dump.exe" -U postgres -s nombre_base_datos > estructura_completa.sql
+"C:\Program Files\PostgreSQL\18\bin\pg_dump.exe" -U postgres -s nombre_base_datos > estructura_completa_de_la_DB_nombre_de_la_BD.sql
 ```
 
-
+> **Control de Versiones:** Se requiere agregar la extensión `*.sql` al archivo `.gitignore` del proyecto. Los archivos generados por volcados de base de datos (`dumps`) son de carácter temporal o de respaldo local y no deben ser rastreados por el sistema de control de versiones. Esto previene la exposición del esquema estructural y evita la saturación del repositorio con archivos estáticos autogenerados.
 
 ---
 
@@ -66,6 +66,14 @@ Este método es útil para el manual técnico si se desea explicar cómo fue evo
     python manage.py check
     ```
 
+* **Exportar la auditoría a un archivo físico**
+    
+    Para almacenar el resultado de la auditoría SQL en un archivo independiente en lugar de visualizarlo únicamente a través de la terminal, se emplea el operador de redirección de salida (`>`).
+    
+    ```bash
+    python manage.py sqlmigrate users 0001 > migracion_0001.sql
+    ```
+    La instrucción anterior genera un archivo denominado `migracion_0001.sql` en el directorio raíz de ejecución, el cual contendrá el código SQL exacto de la migración especificada. 
 
 ---
 
