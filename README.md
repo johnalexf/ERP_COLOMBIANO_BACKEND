@@ -31,9 +31,14 @@ Este sistema requiere conectarse a **dos bases de datos PostgreSQL** independien
 3. Abra el nuevo archivo `.env` y reemplace los valores de ejemplo con sus credenciales reales de base de datos y llaves de seguridad, siguiendo las instrucciones dentro del archivo.
 
 ### 5. Sincronizar Bases de Datos
-Con el archivo `.env` configurado, aplique las migraciones para construir las tablas en ambas bases de datos:
+Con el archivo `.env` configurado, aplique las migraciones para construir las tablas. Debido al enrutamiento Multi-Tenant, debe ejecutar la migración para cada base de datos de forma independiente:
+
 ```bash
+# 1. Migrar la base de datos de Administración (default)
 python manage.py migrate
+
+# 2. Migrar la base de datos de los Inquilinos (tenant)
+python manage.py migrate --database=tenant
 ```
 
 ### 6. Crear Acceso Administrativo
@@ -56,7 +61,7 @@ Una vez que el servidor esté corriendo (`python manage.py runserver`), podrá a
 
 * **Portal Swagger:** `http://127.0.0.1:8000/api/docs/` (Para probar los Endpoints en tiempo real).
 * **Portal Redoc:** `http://127.0.0.1:8000/api/redoc/` (Documentación técnica de lectura).
-* **Contrato OpenAPI:** El archivo `esquema_erp_tecnico.yml` en la raíz se puede importar en **Postman** para generar las colecciones automáticamente.
+* **Contrato OpenAPI:** El archivo `coleccion_postman_api.yml` en la raíz se puede importar en **Postman** para generar las colecciones automáticamente.
 
 ---
 
