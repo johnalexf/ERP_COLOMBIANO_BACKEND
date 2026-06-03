@@ -174,7 +174,7 @@ Esta plantilla está optimizada para la nube. Si está listo para poner su API e
 ## 🛠️ Comandos de Mantenimiento Rápido
 * **Actualizar dependencias:** `pip freeze > requirements.txt`
 * **Limpiar archivos estáticos:** `python manage.py collectstatic`
-* **Verificar integridad:** `python manage.py check`
+* **Verificar integridad del código:** `python manage.py check`
 
 ---
 

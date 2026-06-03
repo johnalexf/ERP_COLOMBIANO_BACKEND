@@ -63,6 +63,7 @@ Este método es útil para el manual técnico si se desea explicar cómo fue evo
 * **Verificar errores generales**
 
      ```bash
+     # Inspecciona el proyecto en busca de errores lógicos o de configuración en el código 
     python manage.py check
     ```
 

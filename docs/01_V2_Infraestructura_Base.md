@@ -512,20 +512,20 @@ class ErpDatabaseRouter:
 
 ---
 
-## 13. 🧪 Prueba de Fuego
+## 13. 🧪 Prueba de Fuego (Validación de Configuración)
 
-Una vez guardados los cambios en `settings.py` y se tenga el archivo `.env` listo, Asegúrar de que la base de datos en PostgreSQL exista.
+Una vez guardados los cambios en `settings.py`, `routers.py` y definido el archivo `.env`, se debe verificar la integridad estructural del proyecto antes de proceder con las bases de datos.
 
-En la terminal (con (venv) activo), ejecutar:
+En la terminal (con el entorno virtual activo), ejecutar:
 
-```Bash
+```bash
 python manage.py check
 ```
+
 > **Resultado esperado:** `System check identified no issues (0 silenced).`
-> Django se puede conectar a PostgreSQL y esta listo para crear las tablas. Esto no significa que se haya establecido una conexion continua, solo es una prueba de verificacion de conexion.
+> Este mensaje confirma que Django ha cargado correctamente las variables del archivo `.env`, que el enrutador Multi-Tenant carece de errores de sintaxis y que las aplicaciones registradas en el núcleo están accesibles.
 
-> Si sale un `error de psycopg2`, probablemente es porque PostgreSQL no está corriendo en los servicios de Windows.
-
+> **Nota Técnica:** Este comando inspecciona la configuración lógica del servidor. Si el sistema arroja un error en esta etapa, generalmente indica una variable ausente en el archivo `.env` o un error tipográfico en `settings.py`. La conexión física y verificación de credenciales con PostgreSQL se realizará posteriormente al evaluar las migraciones.
 ---
 
 

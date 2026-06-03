@@ -60,8 +60,8 @@ Bajar el código y "activarlo".
    ```
 4. Sincronizar Base de Datos y Estáticos
 ```powershell
-   #verificar conectividad con la base de datos
-   python manage.py check
+   # 1. Verificar conectividad real con la base de datos de producción
+   python manage.py showmigrations
 
    #Crear las tablas en la base de datos
    python manage.py migrate
