@@ -47,8 +47,6 @@ paths:
             schema:
               $ref: '#/components/schemas/AdminUserRequest'
         required: true
-      security:
-      - {}
       responses:
         '201':
           content:
@@ -513,7 +511,7 @@ components:
           type: string
           format: email
           title: Correo Electrónico
-          maxLength: 254
+          maxLength: 255
         first_name:
           type: string
           title: Nombre
@@ -522,15 +520,10 @@ components:
           type: string
           title: Apellidos
           maxLength: 150
-        cargo_interno:
+        phone_number:
           type: string
           nullable: true
-          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
-          maxLength: 100
-        telefono_contacto:
-          type: string
-          nullable: true
-          maxLength: 20
+          maxLength: 10
         is_active:
           type: boolean
           title: Activo
@@ -560,7 +553,7 @@ components:
           format: email
           minLength: 1
           title: Correo Electrónico
-          maxLength: 254
+          maxLength: 255
         password:
           type: string
           writeOnly: true
@@ -573,15 +566,10 @@ components:
           type: string
           title: Apellidos
           maxLength: 150
-        cargo_interno:
+        phone_number:
           type: string
           nullable: true
-          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
-          maxLength: 100
-        telefono_contacto:
-          type: string
-          nullable: true
-          maxLength: 20
+          maxLength: 10
         is_active:
           type: boolean
           title: Activo
@@ -611,7 +599,7 @@ components:
           format: email
           minLength: 1
           title: Correo Electrónico
-          maxLength: 254
+          maxLength: 255
         password:
           type: string
           writeOnly: true
@@ -624,15 +612,10 @@ components:
           type: string
           title: Apellidos
           maxLength: 150
-        cargo_interno:
+        phone_number:
           type: string
           nullable: true
-          description: 'Ej: Soporte Nivel 1, Arquitecto de Software, Gerente'
-          maxLength: 100
-        telefono_contacto:
-          type: string
-          nullable: true
-          maxLength: 20
+          maxLength: 10
         is_active:
           type: boolean
           title: Activo
