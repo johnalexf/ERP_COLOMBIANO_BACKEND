@@ -73,6 +73,9 @@ INSTALLED_APPS = [
     # --- APPS ---
     # --- DOMINIO ADMINISTRATIVO ---
     'apps.admin.admin_users',
+    'apps.admin.admin_geography',
+    'apps.admin.admin_legal',
+    'apps.admin.admin_companies',
     
     # --- DOMINIO INQUILINOS (NEGOCIO) ---
     'apps.tenant.tenant_users',
