@@ -23,7 +23,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         model = AdminUser
         
         # Lista blanca de campos permitidos en la API que el serializador manejará.
-        fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name', 'cargo_interno', 'telefono_contacto', 'is_active']
+        fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name', 'phone_number', 'is_active']
 
     # --- VALIDACIÓN DE CONTRASEÑA ---
     def validate_password(self, value):

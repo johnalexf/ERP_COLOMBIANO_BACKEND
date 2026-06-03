@@ -4,12 +4,12 @@ from .models import AdminUser
 
 class CustomAdminUserAdmin(UserAdmin):
     # Columnas expuestas en la vista de lista
-    list_display = ('username', 'email', 'cargo_interno', 'is_staff')
+    list_display = ('username', 'email', 'phone_number', 'is_staff')
     
     # Inyección de campos personalizados en la vista de detalle
     fieldsets = UserAdmin.fieldsets + (
         ('Información Interna ERP', {
-            'fields': ('cargo_interno', 'telefono_contacto')
+            'fields': ('phone_number',)
         }),
     )
 
