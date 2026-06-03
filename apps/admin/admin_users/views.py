@@ -33,9 +33,11 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     # get_permissions(self) Define el protocolo de seguridad. AllowAny abre la puerta para pruebas iniciales.
     def get_permissions(self):
         # Si se está intentando crear un usuario, puerta abierta.
-        if self.action == 'create':
-            return [AllowAny()]
-        
+        # TO-DO: El módulo de gestión administrativa en React aún no está planificado.
+        # Por seguridad, se deshabilita la creación pública de usuarios administradores.
+        # if self.action == 'create':
+        #    return [AllowAny()]
+
         # Para el resto de acciones en producción, se exige un Token JWT válido.
         return [IsAuthenticated(),IsAdminUser()]
     
