@@ -31,6 +31,7 @@ urlpatterns = [
      # --- DOMINIO ADMINISTRATIVO (PUERTA 1) ---
     # Todo el tráfico que empiece por /api/v1/master/ se delega a la app admin_users
     path('api/v1/master/', include('apps.admin.admin_users.urls')),
+    path('api/v1/master/geography/', include('apps.admin.admin_geography.urls')),
 
     # --- DOMINIO INQUILINOS (PUERTA 2) ---
     # Delegación de peticiones con prefijo /api/v1/tenant/ hacia tenant_users
