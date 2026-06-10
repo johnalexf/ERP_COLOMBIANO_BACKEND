@@ -1,0 +1,3 @@
+﻿id;tax_regime_code;abbreviation;name;country_id
+1;ORD;ORD;Régimen Ordinario;1
+2;RST;RST;Régimen Simple de Tributación;1

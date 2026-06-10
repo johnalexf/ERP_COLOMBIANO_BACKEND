@@ -1,0 +1,9 @@
+﻿id;id_type_code;abbreviation;name;country_id
+1;11;RC;Registro civil;1
+2;12;TI;Tarjeta de identidad;1
+3;13;CC;Cédula de ciudadanía;1
+4;21;TE;Tarjeta de extranjería;1
+5;22;CE;Cédula de extranjería;1
+6;31;NIT;NIT;1
+7;41;PP;Pasaporte ;1
+8;42;DIE;Documento de identificación extranjero ;1

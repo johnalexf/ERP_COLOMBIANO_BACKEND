@@ -1,0 +1,6 @@
+﻿id;tax_responsibility_code;description;country_id
+1;O-13;Gran contribuyente;1
+2;O-15;Autorretenedor;1
+3;O-23;Agente de retención IVA;1
+4;O-47;Régimen simple de tributación;1
+5;R-99-PN;No aplica – Otros ;1

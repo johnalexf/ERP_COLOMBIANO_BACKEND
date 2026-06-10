@@ -1,0 +1,13 @@
+﻿id;legal_entity_code;abbreviation;name;country_id
+1;01;;Persona natural;1
+2;03;Ltda.;Sociedad de Responsabilidad limitada.;1
+3;04;S.A.;Sociedad anónima.;1
+4;05;S.C.;Sociedad colectiva.;1
+5;06;S. en C.;Sociedad comandita simple.;1
+6;07;S.C.A;Sociedad comandita por acciones.;1
+7;08;;SOCIEDAD EXTRANJERA - SUCURSAL;1
+8;09;E.A.T.;Empresa asociativa de trabajo.;1
+9;10;E.U.;Empresa unipersonal.;1
+10;11;;SOCIEDAD AGRARIA DE TRANSFORMACIÓN;1
+11;12;;OTRAS SOCIEDADES;1
+12;16;S.A.S;Sociedad por acciones simplificadas (SAS).;1
