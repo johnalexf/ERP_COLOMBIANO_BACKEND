@@ -226,6 +226,154 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminTokenRefresh'
           description: ''
+  /api/v1/master/geography/cities/:
+    get:
+      operationId: v1_master_geography_cities_list
+      description: |-
+        Endpoint de solo lectura para listar Ciudades.
+        Permite filtrado dinámico por departamento: /cities/?state=11
+      parameters:
+      - in: query
+        name: state
+        schema:
+          type: integer
+        description: Filtrar ciudades por el ID del departamento.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/City'
+          description: ''
+  /api/v1/master/geography/cities/{id}/:
+    get:
+      operationId: v1_master_geography_cities_retrieve
+      description: |-
+        Endpoint de solo lectura para listar Ciudades.
+        Permite filtrado dinámico por departamento: /cities/?state=11
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Ciudad.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/City'
+          description: ''
+  /api/v1/master/geography/countries/:
+    get:
+      operationId: v1_master_geography_countries_list
+      description: |-
+        Endpoint de solo lectura para listar Países.
+        Solo retorna países activos.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+          description: ''
+  /api/v1/master/geography/countries/{id}/:
+    get:
+      operationId: v1_master_geography_countries_retrieve
+      description: |-
+        Endpoint de solo lectura para listar Países.
+        Solo retorna países activos.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este País.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Country'
+          description: ''
+  /api/v1/master/geography/states/:
+    get:
+      operationId: v1_master_geography_states_list
+      description: |-
+        Endpoint de solo lectura para listar Departamentos.
+        Permite filtrado dinámico por país: /states/?country=1
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: integer
+        description: Filtrar departamentos por el ID del país.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/State'
+          description: ''
+  /api/v1/master/geography/states/{id}/:
+    get:
+      operationId: v1_master_geography_states_retrieve
+      description: |-
+        Endpoint de solo lectura para listar Departamentos.
+        Permite filtrado dinámico por país: /states/?country=1
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Departamento /
+          Estado.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/State'
+          description: ''
   /api/v1/tenant/auth/login/:
     post:
       operationId: v1_tenant_auth_login_create
@@ -579,6 +727,51 @@ components:
       - email
       - password
       - username
+    City:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        state:
+          type: integer
+          title: Departamento
+        city_code:
+          type: string
+          title: Código de Ciudad
+          maxLength: 15
+        name:
+          type: string
+          title: Nombre
+          maxLength: 100
+      required:
+      - city_code
+      - id
+      - name
+      - state
+    Country:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 100
+        iso_code_3:
+          type: string
+          title: Nomenclatura ISO3
+          maxLength: 3
+        phone_code:
+          type: string
+          title: Prefijo Telefónico
+          maxLength: 5
+      required:
+      - id
+      - iso_code_3
+      - name
+      - phone_code
     PatchedAdminUserRequest:
       type: object
       description: |-
@@ -664,6 +857,28 @@ components:
           type: string
           format: date-time
           title: Fecha de registro
+    State:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        country:
+          type: integer
+          title: País
+        state_code:
+          type: string
+          title: Código de Departamento
+          maxLength: 10
+        name:
+          type: string
+          title: Nombre
+          maxLength: 100
+      required:
+      - country
+      - id
+      - name
+      - state_code
     TenantLogin:
       type: object
       description: |-
