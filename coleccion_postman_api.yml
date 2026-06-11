@@ -374,6 +374,219 @@ paths:
               schema:
                 $ref: '#/components/schemas/State'
           description: ''
+  /api/v1/master/legal/id-type/:
+    get:
+      operationId: v1_master_legal_id_type_list
+      description: |-
+        Endpoint de solo lectura para listar tipo de identificación
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /id-type/?country=1
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: integer
+        description: Filtrar tipo de identificación por país.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IdTypeSerializers'
+          description: ''
+  /api/v1/master/legal/id-type/{id}/:
+    get:
+      operationId: v1_master_legal_id_type_retrieve
+      description: |-
+        Endpoint de solo lectura para listar tipo de identificación
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /id-type/?country=1
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Tipo de identificación.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdTypeSerializers'
+          description: ''
+  /api/v1/master/legal/organization-type/:
+    get:
+      operationId: v1_master_legal_organization_type_list
+      description: |-
+        Endpoint de solo lectura para listar tipo de organizaciones
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /organization-type/?country=1
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: integer
+        description: Filtrar tipos de organizaciones por país.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationTypeSerializers'
+          description: ''
+  /api/v1/master/legal/organization-type/{id}/:
+    get:
+      operationId: v1_master_legal_organization_type_retrieve
+      description: |-
+        Endpoint de solo lectura para listar tipo de organizaciones
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /organization-type/?country=1
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Tipo de organización.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationTypeSerializers'
+          description: ''
+  /api/v1/master/legal/tax-regime/:
+    get:
+      operationId: v1_master_legal_tax_regime_list
+      description: |-
+        Endpoint de solo lectura para listar regimenes fiscales
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /tax-regime/?country=1
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: integer
+        description: Filtrar regimen fiscal por país.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaxRegimeSerializers'
+          description: ''
+  /api/v1/master/legal/tax-regime/{id}/:
+    get:
+      operationId: v1_master_legal_tax_regime_retrieve
+      description: |-
+        Endpoint de solo lectura para listar regimenes fiscales
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /tax-regime/?country=1
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Regimen fiscal.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxRegimeSerializers'
+          description: ''
+  /api/v1/master/legal/tax-responsibility/:
+    get:
+      operationId: v1_master_legal_tax_responsibility_list
+      description: |-
+        Endpoint de solo lectura para listar responsabilidades fiscales
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /tax-responsibility/?country=1
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: integer
+        description: Filtrar responsabilidades fiscales por país.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaxResponsibilitySerializers'
+          description: ''
+  /api/v1/master/legal/tax-responsibility/{id}/:
+    get:
+      operationId: v1_master_legal_tax_responsibility_retrieve
+      description: |-
+        Endpoint de solo lectura para listar responsabilidades fiscales
+        Solo retorna las que esten activas
+        y Permite filtrado dinámico por país: /tax-responsibility/?country=1
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Un valor de entero único que identifique este Responsabilidad
+          fiscal.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxResponsibilitySerializers'
+          description: ''
   /api/v1/tenant/auth/login/:
     post:
       operationId: v1_tenant_auth_login_create
@@ -772,6 +985,52 @@ components:
       - iso_code_3
       - name
       - phone_code
+    IdTypeSerializers:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        id_type_code:
+          type: string
+          nullable: true
+          title: Codigo legal
+          maxLength: 10
+        abbreviation:
+          type: string
+          nullable: true
+          title: Nomenclatura
+          maxLength: 15
+        name:
+          type: string
+          title: Nombre
+          maxLength: 100
+      required:
+      - id
+      - name
+    OrganizationTypeSerializers:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        legal_entity_code:
+          type: string
+          nullable: true
+          title: Codigo camara de comercio
+          maxLength: 20
+        abbreviation:
+          type: string
+          nullable: true
+          title: Nomenclatura
+          maxLength: 15
+        name:
+          type: string
+          title: Nombre
+          maxLength: 150
+      required:
+      - id
+      - name
     PatchedAdminUserRequest:
       type: object
       description: |-
@@ -879,6 +1138,47 @@ components:
       - id
       - name
       - state_code
+    TaxRegimeSerializers:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tax_regime_code:
+          type: string
+          nullable: true
+          title: Codigo legal
+          maxLength: 20
+        abbreviation:
+          type: string
+          nullable: true
+          title: Nomenclatura
+          maxLength: 15
+        name:
+          type: string
+          title: Nombre
+          maxLength: 255
+      required:
+      - id
+      - name
+    TaxResponsibilitySerializers:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tax_responsibility_code:
+          type: string
+          nullable: true
+          title: Codigo legal
+          maxLength: 20
+        description:
+          type: string
+          title: Descripción
+          maxLength: 255
+      required:
+      - description
+      - id
     TenantLogin:
       type: object
       description: |-
