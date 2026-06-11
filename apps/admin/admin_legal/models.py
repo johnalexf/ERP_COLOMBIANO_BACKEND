@@ -65,4 +65,4 @@ class TaxResponsibility(models.Model):
         verbose_name_plural = "Responsabilidades fiscales"
     
     def __str__(self):
-        return f"{self.name} ({self.tax_responsibility_code})"
+        return f"{self.description} ({self.tax_responsibility_code})"
